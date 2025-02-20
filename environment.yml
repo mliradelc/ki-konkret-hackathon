@@ -1,0 +1,10 @@
+name: name-of-your-environment
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - list
+  - of
+  - packages
+  - needed for
+  - your project
