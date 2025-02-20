@@ -1,10 +1,11 @@
-name: name-of-your-environment
+name: ki-konkret-hackathon
 channels:
   - conda-forge
   - defaults
 dependencies:
-  - list
-  - of
-  - packages
-  - needed for
-  - your project
+  - gradio
+  - gradio-client
+  - transformers
+  - pytorch
+  - openai
+  
