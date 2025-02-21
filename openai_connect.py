@@ -1,5 +1,4 @@
 from openai import OpenAI
-import json
 
 # API configuration
 api_key = 'Replace_with_you_API_key'
