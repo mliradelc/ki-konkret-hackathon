@@ -1,4 +1,5 @@
 from openai import OpenAI
+import json
 
 # API configuration
 api_key = 'Replace_with_you_API_key'
@@ -25,5 +26,5 @@ chat_completion = client.chat.completions.create(
         model= model,
     )
 
-# Print full response as JSON
-print(json_dumps(chat_completion))
+# Print response content
+print(chat_completion.choices[0].message.content)
