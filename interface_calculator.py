@@ -30,4 +30,4 @@ demo = gr.Interface(
     description="Here's a sample calculator.",
 )
 
-demo.launch(server_port=7863, share=True)
+demo.launch(server_port=7864, share=True)
