@@ -1,7 +1,7 @@
 from openai import OpenAI
 
 # API configuration
-api_key = 'Replace_with_you_API_key'
+api_key = '38b8cf992657565c6b8d32272eb018f9'
 
 base_url = "https://chat-ai.academiccloud.de/v1"
 
@@ -25,5 +25,7 @@ chat_completion = client.chat.completions.create(
         model= model,
     )
 
+# Print response
+print(chat_completion)
 # Print response content
 print(chat_completion.choices[0].message.content)
