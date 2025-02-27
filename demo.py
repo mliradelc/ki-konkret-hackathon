@@ -59,14 +59,18 @@ def run_demo():
     print("2. Modern - Contemporary design with teal accents")
     print("3. Minimalist - Clean, simple design with ample white space")
     
-    template_choice = input("\nEnter choice (1-3) [default=1]: ").strip()
-    
-    # Map user input to template style
+    # Try to get user input, but handle non-interactive environments (like Claude's bash tool)
     template_style = "classic"  # default
-    if template_choice == "2":
-        template_style = "modern"
-    elif template_choice == "3":
-        template_style = "minimalist"
+    try:
+        template_choice = input("\nEnter choice (1-3) [default=1]: ").strip()
+        
+        # Map user input to template style
+        if template_choice == "2":
+            template_style = "modern"
+        elif template_choice == "3":
+            template_style = "minimalist"
+    except (EOFError, KeyboardInterrupt):
+        print("\nUsing default template (Classic) in non-interactive mode")
     
     print(f"\nGenerating CV with {template_style} template...")
     
