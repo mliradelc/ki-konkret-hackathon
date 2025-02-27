@@ -53,7 +53,24 @@ def run_demo():
     print("\nGenerating CV with sample data...")
     print("This may take a minute...\n")
     
-    # Generate CV with sample data
+    # Let user choose a template
+    print("\nChoose a CV template:")
+    print("1. Classic - Traditional format with blue headers")
+    print("2. Modern - Contemporary design with teal accents")
+    print("3. Minimalist - Clean, simple design with ample white space")
+    
+    template_choice = input("\nEnter choice (1-3) [default=1]: ").strip()
+    
+    # Map user input to template style
+    template_style = "classic"  # default
+    if template_choice == "2":
+        template_style = "modern"
+    elif template_choice == "3":
+        template_style = "minimalist"
+    
+    print(f"\nGenerating CV with {template_style} template...")
+    
+    # Generate CV with sample data and selected template
     pdf_path, status = generate_cv(
         SAMPLE_DATA["name"],
         SAMPLE_DATA["contact"],
@@ -63,7 +80,8 @@ def run_demo():
         SAMPLE_DATA["skills"],
         SAMPLE_DATA["achievements"],
         SAMPLE_DATA["references"],
-        SAMPLE_DATA["job_description"]
+        SAMPLE_DATA["job_description"],
+        template_style
     )
     
     if pdf_path:
