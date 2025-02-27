@@ -257,26 +257,48 @@ def create_classic_template(content, name, file_path):
                 continue
             
             # Detect headers
-            if line.isupper() or (line.startswith('#') and not line.startswith('##')):
+            if line.isupper() or (line.startswith('#') and not line.startswith('##')) or line.startswith('**') or (line.startswith('*') and not line.startswith('**')):
                 if current_list_items:
                     elements.append(ListFlowable(current_list_items, bulletType='bullet', leftIndent=20))
                     current_list_items = []
                 
-                header_text = line.lstrip('#').strip() if line.startswith('#') else line
+                # Clean header text - remove #, *, ** characters
+                header_text = line
+                if line.startswith('#'):
+                    header_text = line.lstrip('#').strip()
+                elif line.startswith('**'):
+                    header_text = line.lstrip('*').strip()
+                elif line.startswith('*'):
+                    header_text = line.lstrip('*').strip()
+                
                 elements.append(Paragraph(header_text, section_header))
             
             # Detect subheaders
-            elif line.startswith('##') or line.startswith('*') or line.startswith('**'):
+            elif line.startswith('##'):
                 if current_list_items:
                     elements.append(ListFlowable(current_list_items, bulletType='bullet', leftIndent=20))
                     current_list_items = []
                 
-                subheader_text = line.lstrip('#').strip() if line.startswith('##') else line.strip('* ')
+                subheader_text = line.lstrip('#').strip()
                 elements.append(Paragraph(subheader_text, sub_header))
             
             # Detect list items
             elif line.startswith('-') or line.startswith('•') or line.strip().startswith('*'):
-                item_text = line.lstrip('-•* ').strip()
+                # Make sure to correctly handle asterisks for list items
+                item_text = line
+                if line.startswith('-'):
+                    item_text = line[1:].strip()
+                elif line.startswith('•'):
+                    item_text = line[1:].strip()
+                elif line.strip().startswith('**'):
+                    item_text = line.strip()[2:].strip()
+                    if item_text.endswith('**'):
+                        item_text = item_text[:-2].strip()
+                elif line.strip().startswith('*'):
+                    item_text = line.strip()[1:].strip()
+                    if item_text.endswith('*'):
+                        item_text = item_text[:-1].strip()
+                
                 current_list_items.append(ListItem(Paragraph(item_text, normal_text)))
             
             # Regular text
@@ -395,27 +417,49 @@ def create_modern_template(content, name, file_path):
                 continue
             
             # Detect headers with modern styling
-            if line.isupper() or (line.startswith('#') and not line.startswith('##')):
+            if line.isupper() or (line.startswith('#') and not line.startswith('##')) or line.startswith('**') or (line.startswith('*') and not line.startswith('**')):
                 if current_list_items:
                     elements.append(ListFlowable(current_list_items, bulletType='bullet', leftIndent=20))
                     current_list_items = []
                 
-                header_text = line.lstrip('#').strip() if line.startswith('#') else line
+                # Clean header text - remove #, *, ** characters
+                header_text = line
+                if line.startswith('#'):
+                    header_text = line.lstrip('#').strip()
+                elif line.startswith('**'):
+                    header_text = line.lstrip('*').strip()
+                elif line.startswith('*'):
+                    header_text = line.lstrip('*').strip()
+                
                 elements.append(Spacer(1, 10))
                 elements.append(Paragraph(header_text, section_header))
             
             # Detect subheaders
-            elif line.startswith('##') or line.startswith('*') or line.startswith('**'):
+            elif line.startswith('##'):
                 if current_list_items:
                     elements.append(ListFlowable(current_list_items, bulletType='bullet', leftIndent=20))
                     current_list_items = []
                 
-                subheader_text = line.lstrip('#').strip() if line.startswith('##') else line.strip('* ')
+                subheader_text = line.lstrip('#').strip()
                 elements.append(Paragraph(subheader_text, sub_header))
             
             # Detect list items with modern bullets
             elif line.startswith('-') or line.startswith('•') or line.strip().startswith('*'):
-                item_text = line.lstrip('-•* ').strip()
+                # Make sure to correctly handle asterisks for list items
+                item_text = line
+                if line.startswith('-'):
+                    item_text = line[1:].strip()
+                elif line.startswith('•'):
+                    item_text = line[1:].strip()
+                elif line.strip().startswith('**'):
+                    item_text = line.strip()[2:].strip()
+                    if item_text.endswith('**'):
+                        item_text = item_text[:-2].strip()
+                elif line.strip().startswith('*'):
+                    item_text = line.strip()[1:].strip()
+                    if item_text.endswith('*'):
+                        item_text = item_text[:-1].strip()
+                
                 current_list_items.append(ListItem(Paragraph(item_text, normal_text)))
             
             # Regular text
@@ -529,28 +573,50 @@ def create_minimalist_template(content, name, file_path):
                 continue
             
             # Detect headers with minimalist styling
-            if line.isupper() or (line.startswith('#') and not line.startswith('##')):
+            if line.isupper() or (line.startswith('#') and not line.startswith('##')) or line.startswith('**') or (line.startswith('*') and not line.startswith('**')):
                 if current_list_items:
                     elements.append(ListFlowable(current_list_items, bulletType='bullet', leftIndent=15))
                     current_list_items = []
                 
-                header_text = line.lstrip('#').strip() if line.startswith('#') else line
+                # Clean header text - remove #, *, ** characters
+                header_text = line
+                if line.startswith('#'):
+                    header_text = line.lstrip('#').strip()
+                elif line.startswith('**'):
+                    header_text = line.lstrip('*').strip()
+                elif line.startswith('*'):
+                    header_text = line.lstrip('*').strip()
+                    
                 elements.append(Paragraph(header_text, section_header))
                 # Add a thin line under headers
                 elements.append(Spacer(1, 2))
             
             # Detect subheaders
-            elif line.startswith('##') or line.startswith('*') or line.startswith('**'):
+            elif line.startswith('##'):
                 if current_list_items:
                     elements.append(ListFlowable(current_list_items, bulletType='bullet', leftIndent=15))
                     current_list_items = []
                 
-                subheader_text = line.lstrip('#').strip() if line.startswith('##') else line.strip('* ')
+                subheader_text = line.lstrip('#').strip()
                 elements.append(Paragraph(subheader_text, sub_header))
             
             # Detect list items with minimalist bullets
             elif line.startswith('-') or line.startswith('•') or line.strip().startswith('*'):
-                item_text = line.lstrip('-•* ').strip()
+                # Make sure to correctly handle asterisks for list items
+                item_text = line
+                if line.startswith('-'):
+                    item_text = line[1:].strip()
+                elif line.startswith('•'):
+                    item_text = line[1:].strip()
+                elif line.strip().startswith('**'):
+                    item_text = line.strip()[2:].strip()
+                    if item_text.endswith('**'):
+                        item_text = item_text[:-2].strip()
+                elif line.strip().startswith('*'):
+                    item_text = line.strip()[1:].strip()
+                    if item_text.endswith('*'):
+                        item_text = item_text[:-1].strip()
+                
                 current_list_items.append(ListItem(Paragraph(item_text, normal_text)))
             
             # Regular text
