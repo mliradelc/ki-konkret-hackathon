@@ -4,6 +4,6 @@ models:
   - meta-llama-3.3-70b-instruct
   - qwen2.5-72b-instruct
 api_key:
-  - '72d083362404ed2b32c93c50ad882d60' # Replace with your API key
+  - 'YOUR_API_KEY_HERE' # Replace with your API key
 base_url:
   - https://chat-ai.academiccloud.de/v1
