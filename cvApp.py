@@ -390,14 +390,14 @@ def create_modern_template(content, name, file_path):
             if not line:
                 elements.append(Spacer(1, 5))
                 if current_list_items:
-                    elements.append(ListFlowable(current_list_items, bulletType='circle', leftIndent=20))
+                    elements.append(ListFlowable(current_list_items, bulletType='bullet', leftIndent=20))
                     current_list_items = []
                 continue
             
             # Detect headers with modern styling
             if line.isupper() or (line.startswith('#') and not line.startswith('##')):
                 if current_list_items:
-                    elements.append(ListFlowable(current_list_items, bulletType='circle', leftIndent=20))
+                    elements.append(ListFlowable(current_list_items, bulletType='bullet', leftIndent=20))
                     current_list_items = []
                 
                 header_text = line.lstrip('#').strip() if line.startswith('#') else line
@@ -407,7 +407,7 @@ def create_modern_template(content, name, file_path):
             # Detect subheaders
             elif line.startswith('##') or line.startswith('*') or line.startswith('**'):
                 if current_list_items:
-                    elements.append(ListFlowable(current_list_items, bulletType='circle', leftIndent=20))
+                    elements.append(ListFlowable(current_list_items, bulletType='bullet', leftIndent=20))
                     current_list_items = []
                 
                 subheader_text = line.lstrip('#').strip() if line.startswith('##') else line.strip('* ')
@@ -421,7 +421,7 @@ def create_modern_template(content, name, file_path):
             # Regular text
             else:
                 if current_list_items:
-                    elements.append(ListFlowable(current_list_items, bulletType='circle', leftIndent=20))
+                    elements.append(ListFlowable(current_list_items, bulletType='bullet', leftIndent=20))
                     current_list_items = []
                 
                 paragraph_text = line
@@ -439,7 +439,7 @@ def create_modern_template(content, name, file_path):
         
         # Add any remaining list items
         if current_list_items:
-            elements.append(ListFlowable(current_list_items, bulletType='circle', leftIndent=20))
+            elements.append(ListFlowable(current_list_items, bulletType='bullet', leftIndent=20))
         
         # Build the PDF
         doc.build(elements)
