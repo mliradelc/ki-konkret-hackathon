@@ -2,23 +2,58 @@
 
 Dieses Repository enthält Code für den Workshop: Entwickler - Hackathon zur Erstellung von Schnittstellen für KI-Modelle mit Gradio
 
+## CV Generator - ATS Optimized
 
-CV Automatic creation Web-App using Gradio.
+This application automatically creates professional CVs optimized for Applicant Tracking Systems (ATS) using Gradio and LLMs.
 
-With Gradio connected to a LLM model that is set in the 'settings.yml' file the app should have and do:
+### Features
 
-- An UI where the user can add different attributes about themselves and the job he/she wants to apply to.
-  -  Job Description
+- User-friendly interface for inputting personal and professional information:
+  - Full Name
   - Contact Information
   - Professional Summary
   - Education
+  - Work Experience
   - Skills
   - Achievements
   - References
-- The app use this information to send a prompt to a LLM who will generate a CV from the input data
-- The App has to receive this information, make the proper formating and save it in a PDF that the user is able to download it
-- The goal is that the CV be optimized to pass automated CV tools that check the CVs
+  - Job Description
+- AI-powered CV generation optimized for ATS screening tools
+- Formatted PDF download with proper styling and layout
+- Multiple LLM model selection
 
+### Getting Started
 
-Other considerations:
-- The 'settings.yml' file is already configured and should use only the information contained in it.
+1. Set up the environment:
+   ```
+   conda env create -f environment.yml
+   conda activate ki-konkret-hackathon
+   ```
+
+2. Configure the `settings.yml` file with your API key and preferred models.
+
+3. Run the application:
+   ```
+   python cvApp.py
+   ```
+
+4. Try the demo (with sample data):
+   ```
+   python demo.py
+   ```
+
+### Configuration
+
+- The `settings.yml` file contains:
+  - `models`: List of available LLM models
+  - `api_key`: Your API key for accessing the LLM service
+  - `base_url`: API endpoint for the LLM service
+
+### Requirements
+
+- Python 3.x
+- Gradio
+- FPDF
+- Other dependencies listed in environment.yml
+
+The goal of this application is to generate CVs that are optimized to pass automated CV screening tools while maintaining a professional appearance for human reviewers.

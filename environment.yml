@@ -3,6 +3,12 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - gradio
+  - python=3.9
+  - gradio>=4.0.0
   - gradio_client
-  - transformers
+  - requests
+  - pyyaml
+  - pip
+  - pip:
+    - reportlab  # Better PDF library with Unicode support
+    - mistletoe

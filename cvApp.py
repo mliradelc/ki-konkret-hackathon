@@ -2,11 +2,16 @@ import gradio as gr
 import requests
 import json
 import tempfile
-from fpdf import FPDF
 import os
 from datetime import datetime
 import yaml
 import logging
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, ListItem, ListFlowable
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 
 
 # Set up logging
@@ -75,7 +80,7 @@ def generate_cv_content(name, contact, summary, education, work_experience,
     # Construct the messages for the chat completion API
     messages = [
         {"role": "system",
-         "content": "You are a professional CV writer who creates well-structured, professional CVs."},
+         "content": "You are a professional CV writer who creates well-structured CVs optimized to pass Applicant Tracking Systems (ATS). You understand how to use relevant keywords from job descriptions and format content to maximize ATS scoring while maintaining readability for human reviewers."},
         {"role": "user", "content": f"""
         Create a professional CV for {name} who is applying for the following job:
 
@@ -104,7 +109,19 @@ def generate_cv_content(name, contact, summary, education, work_experience,
         REFERENCES:
         {references}
 
-        Format the CV in a clean, professional way that highlights the candidate's strengths relevant to the job description.
+        Key requirements:
+        1. Match terminology and keywords from the job description throughout the CV
+        2. Use standard section headings that ATS can easily recognize (use all-caps for main section headers)
+        3. Highlight relevant skills and experiences that match the job requirements
+        4. Format the CV in a clean, professional way with proper spacing
+        5. Quantify achievements whenever possible
+        6. Avoid tables, columns, headers/footers, or complex formatting that could confuse ATS
+
+        Format instructions:
+        - Use ALL CAPS for main section headers (like "EDUCATION", "WORK EXPERIENCE", etc.)
+        - Use bullet points (- ) for listing skills and achievements
+        - For work experiences and education, put the organization/school name on one line, followed by position/degree and dates
+
         Return the content in plain text with clear section headers. Do not comment before and after the content.
         """}
     ]
@@ -167,35 +184,153 @@ def generate_cv_content(name, contact, summary, education, work_experience,
         return error_msg
 
 def create_pdf(content, name):
-    """Create a PDF file from the generated content using markdown conversion"""
+    """Create a PDF file from the generated content with proper formatting using ReportLab"""
     try:
-        # Convert markdown to HTML
-        from mistletoe import markdown
-        html_content = markdown(content)
-
-        # Create a PDF object
-        pdf = FPDF()
-        pdf.add_page()
-
-        # Add title
-        pdf.set_font("Arial", 'B', 16)
-        pdf.cell(200, 10, txt="Curriculum Vitae", ln=True, align='C')
-        pdf.ln(10)
-
-        # Write the HTML content
-        pdf.write_html(html_content)
-
         # Generate filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"CV_{name.replace(' ', '_')}_{timestamp}.pdf"
-
+        
         # Create a temporary file
         temp_dir = tempfile.gettempdir()
         file_path = os.path.join(temp_dir, filename)
-
-        # Save the pdf
-        pdf.output(file_path)
-
+        
+        # Set up the document
+        doc = SimpleDocTemplate(
+            file_path,
+            pagesize=A4,
+            rightMargin=72,
+            leftMargin=72,
+            topMargin=72,
+            bottomMargin=72
+        )
+        
+        # Define styles
+        styles = getSampleStyleSheet()
+        
+        # Create custom styles without modifying the original stylesheet
+        cv_title = ParagraphStyle(
+            name='CVTitle',
+            parent=styles['Heading1'],
+            alignment=TA_CENTER,
+            fontSize=16,
+            spaceAfter=16
+        )
+        
+        section_header = ParagraphStyle(
+            name='CVSectionHeader',
+            parent=styles['Heading2'],
+            fontSize=14,
+            spaceAfter=10,
+            spaceBefore=15
+        )
+        
+        sub_header = ParagraphStyle(
+            name='CVSubHeader',
+            parent=styles['Heading3'],
+            fontSize=12,
+            spaceAfter=8
+        )
+        
+        normal_text = ParagraphStyle(
+            name='CVNormalText',
+            parent=styles['Normal'],
+            fontSize=11,
+            leading=14,
+            spaceAfter=8
+        )
+        
+        # Create the elements to add to the document
+        elements = []
+        
+        # Add title
+        elements.append(Paragraph("Curriculum Vitae", cv_title))
+        elements.append(Spacer(1, 10))
+        
+        # Split content into lines and process
+        current_list_items = []
+        
+        lines = content.split('\n')
+        i = 0
+        while i < len(lines):
+            line = lines[i].strip()
+            i += 1  # Increment counter
+            
+            if not line:
+                # Add a small space for empty lines
+                elements.append(Spacer(1, 5))
+                
+                # If we were building a list, add it now
+                if current_list_items:
+                    elements.append(ListFlowable(current_list_items, bulletType='bullet', leftIndent=20))
+                    current_list_items = []
+                
+                continue
+            
+            # Detect headers (all caps or markdown)
+            if line.isupper() or (line.startswith('#') and not line.startswith('##')):
+                # If we were building a list, add it now
+                if current_list_items:
+                    elements.append(ListFlowable(current_list_items, bulletType='bullet', leftIndent=20))
+                    current_list_items = []
+                
+                if line.startswith('#'):
+                    header_text = line.lstrip('#').strip()
+                else:
+                    header_text = line
+                
+                elements.append(Paragraph(header_text, section_header))
+            
+            # Detect subheaders
+            elif line.startswith('##') or line.startswith('*') or line.startswith('**'):
+                # If we were building a list, add it now
+                if current_list_items:
+                    elements.append(ListFlowable(current_list_items, bulletType='bullet', leftIndent=20))
+                    current_list_items = []
+                
+                # Clean subheader text
+                if line.startswith('##'):
+                    subheader_text = line.lstrip('#').strip()
+                else:
+                    subheader_text = line.strip('* ')
+                
+                elements.append(Paragraph(subheader_text, sub_header))
+            
+            # Detect list items
+            elif line.startswith('-') or line.startswith('•') or line.strip().startswith('*'):
+                # Add to current list
+                item_text = line.lstrip('-•* ').strip()
+                current_list_items.append(ListItem(Paragraph(item_text, normal_text)))
+            
+            # Regular text
+            else:
+                # If we were building a list, add it now
+                if current_list_items:
+                    elements.append(ListFlowable(current_list_items, bulletType='bullet', leftIndent=20))
+                    current_list_items = []
+                
+                # Handle multi-line paragraphs by combining with next line if it's not empty or special
+                paragraph_text = line
+                
+                # Look ahead to see if next lines should be part of this paragraph
+                while i < len(lines) and lines[i].strip() and not (
+                    lines[i].strip().isupper() or
+                    lines[i].strip().startswith('#') or
+                    lines[i].strip().startswith('*') or
+                    lines[i].strip().startswith('-') or
+                    lines[i].strip().startswith('•')
+                ):
+                    paragraph_text += " " + lines[i].strip()
+                    i += 1
+                
+                elements.append(Paragraph(paragraph_text, normal_text))
+        
+        # If we have any list items left, add them
+        if current_list_items:
+            elements.append(ListFlowable(current_list_items, bulletType='bullet', leftIndent=20))
+        
+        # Build the PDF
+        doc.build(elements)
+        
         logger.info(f"PDF created successfully: {file_path}")
         return file_path
     except Exception as e:
@@ -229,8 +364,8 @@ def generate_cv(name, contact, summary, education, work_experience,
 
 # Create Gradio interface
 with gr.Blocks(title="CV Generator") as app:
-    gr.Markdown("# Professional CV Generator")
-    gr.Markdown("Fill in the fields below to generate a customized CV for your job application.")
+    gr.Markdown("# Professional CV Generator - ATS Optimized")
+    gr.Markdown("Fill in the fields below to generate a customized CV for your job application. Your CV will be optimized to pass Applicant Tracking Systems (ATS) while maintaining a professional appearance.")
 
     with gr.Row():
         with gr.Column():
