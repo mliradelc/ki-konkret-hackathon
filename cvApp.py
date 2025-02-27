@@ -444,19 +444,63 @@ with gr.Blocks(title="CV Generator") as app:
 
 # Launch the app
 if __name__ == "__main__":
-    # Create a template settings.yml file if it doesn't exist
+    # Create a settings.yml file from example if it doesn't exist
     if not os.path.exists("settings.yml"):
-        template = {
-            "models": ["meta-llama-3.1-8b-instruct", "codestral-22b"],
-            "api_key": "YOUR_API_KEY_HERE",
-            "base_url": "https://chat-ai.academiccloud.de/v1"
-        }
-        try:
-            with open("settings.yml", "w") as file:
-                yaml.dump(template, file, default_flow_style=False)
-            logger.info("Created template settings.yml file. Please update with your actual API details.")
-        except Exception as e:
-            logger.error(f"Failed to create template settings.yml file: {e}")
+        if os.path.exists("settings.yml.example"):
+            try:
+                # Copy the example file
+                with open("settings.yml.example", "r") as example_file:
+                    template = yaml.safe_load(example_file)
+                
+                # Ask user for API key
+                print("\n" + "="*80)
+                print("CV Generator Setup".center(80))
+                print("="*80)
+                print("\nNo settings.yml file found. Creating one from the example template.")
+                
+                # Get API key from user
+                api_key = input("\nPlease enter your API key: ").strip()
+                if api_key:
+                    if isinstance(template["api_key"], list):
+                        template["api_key"] = [api_key]
+                    else:
+                        template["api_key"] = api_key
+                    
+                    # Write to settings.yml
+                    with open("settings.yml", "w") as file:
+                        yaml.dump(template, file, default_flow_style=False)
+                    print("\n✓ Settings file created successfully!")
+                    print("✓ Your API key has been saved to settings.yml (which is gitignored)")
+                else:
+                    print("\n⚠ No API key provided. You'll need to edit settings.yml manually.")
+                    
+                    # Just copy the example file
+                    with open("settings.yml", "w") as file:
+                        yaml.dump(template, file, default_flow_style=False)
+            except Exception as e:
+                logger.error(f"Failed to create settings.yml from example: {e}")
+                # Fall back to creating a basic template
+                template = {
+                    "models": ["meta-llama-3.1-8b-instruct", "mistral-large-instruct"],
+                    "api_key": "YOUR_API_KEY_HERE",
+                    "base_url": "https://chat-ai.academiccloud.de/v1"
+                }
+                with open("settings.yml", "w") as file:
+                    yaml.dump(template, file, default_flow_style=False)
+                logger.info("Created basic settings.yml file. Please update with your actual API details.")
+        else:
+            # Create a basic template if example doesn't exist
+            template = {
+                "models": ["meta-llama-3.1-8b-instruct", "mistral-large-instruct"],
+                "api_key": "YOUR_API_KEY_HERE",
+                "base_url": "https://chat-ai.academiccloud.de/v1"
+            }
+            try:
+                with open("settings.yml", "w") as file:
+                    yaml.dump(template, file, default_flow_style=False)
+                logger.info("Created template settings.yml file. Please update with your actual API details.")
+            except Exception as e:
+                logger.error(f"Failed to create template settings.yml file: {e}")
 
     # Add settings.yml to .gitignore if it doesn't already contain it
     gitignore_path = ".gitignore"

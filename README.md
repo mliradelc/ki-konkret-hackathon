@@ -44,10 +44,16 @@ This application automatically creates professional CVs optimized for Applicant 
 
 ### Configuration
 
-- The `settings.yml` file contains:
-  - `models`: List of available LLM models
-  - `api_key`: Your API key for accessing the LLM service
-  - `base_url`: API endpoint for the LLM service
+1. The app uses a gitignored `settings.yml` file that contains your API credentials.
+2. On first run, it will:
+   - Copy from `settings.yml.example` if available
+   - Ask you for your API key via console input
+   - Save it to the gitignored `settings.yml` file
+
+Configuration parameters:
+- `models`: List of available LLM models
+- `api_key`: Your API key for accessing the LLM service (never committed to git)
+- `base_url`: API endpoint for the LLM service
 
 ### Requirements
 
