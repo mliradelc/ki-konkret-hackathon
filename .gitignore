@@ -1,3 +1,5 @@
 # API Configuration
 settings.yml
 __pycache__/
+/temp-repo/
+/ki-konkret-hackathon-mirror/
